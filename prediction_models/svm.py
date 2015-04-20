@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib import style
 style.use("ggplot")
 from sklearn import svm
+from normalize import Normalizer
 
 input, data, features, results = ([] for i in range(4))
 path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'dataset/statlog/data.txt'))
@@ -20,13 +21,18 @@ for line in input:
     results.append(each_row.pop())
     features.append(each_row)
 
+normalizer = Normalizer(features)
+features = normalizer.scale_continuous_features(features)
+features = normalizer.standardize_features(features)
+# features = normalizer.binarize_features(features)
+
+training_count = 200
 results = [int(i) for i in results]
+training_features = features[0:training_count]
+training_results = results[0:training_count]
 
-training_features = features[0:230]
-training_results = results[0:230]
-
-testing_features = features[230:]
-testing_results = results[230:]
+testing_features = features[training_count:]
+testing_results = results[training_count:]
 
 clf = svm.SVC(kernel='linear', C = 1.0)
 clf.fit(training_features, training_results)
